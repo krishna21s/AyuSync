@@ -1,15 +1,16 @@
 import { motion } from "framer-motion";
-import { Bot, Lightbulb } from "lucide-react";
+import { Bot, Lightbulb, Loader2 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-const suggestions = [
-  { tKey: "ai.tip1", delay: 0.1 },
-  { tKey: "ai.tip2", delay: 0.2 },
-  { tKey: "ai.tip3", delay: 0.3 },
-];
+interface AISuggestionsCardProps {
+  tips?: string[];
+  isLoading?: boolean;
+}
 
-export function AISuggestionsCard() {
+export function AISuggestionsCard({ tips, isLoading }: AISuggestionsCardProps) {
   const { t } = useLanguage();
+
+  const displayTips = tips?.length ? tips : [t("ai.tip1"), t("ai.tip2"), t("ai.tip3")];
 
   return (
     <motion.div
@@ -23,21 +24,22 @@ export function AISuggestionsCard() {
           <Bot className="h-5 w-5 text-gray-600" />
         </div>
         <h3 className="text-lg font-bold text-gray-900">{t("ai.title")}</h3>
+        {isLoading && <Loader2 className="h-4 w-4 text-gray-400 animate-spin" />}
       </div>
 
       <div className="space-y-2.5">
-        {suggestions.map((s, i) => (
+        {displayTips.map((tip, i) => (
           <motion.div
             key={i}
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.5 + s.delay }}
+            transition={{ delay: 0.5 + i * 0.1 }}
             className="flex items-start gap-3 bg-gray-50 rounded-xl rounded-bl-sm px-4 py-3 border border-gray-100"
           >
             <div className="shrink-0 mt-0.5">
               <Lightbulb className="h-4 w-4 text-gray-400" />
             </div>
-            <p className="text-sm text-gray-700">{t(s.tKey)}</p>
+            <p className="text-sm text-gray-700">{tip}</p>
           </motion.div>
         ))}
       </div>

@@ -1,4 +1,4 @@
-import { LayoutDashboard, Pill, Activity, BarChart3, Settings, Dumbbell, UtensilsCrossed } from "lucide-react";
+import { LayoutDashboard, Pill, Activity, BarChart3, Settings, Dumbbell, UtensilsCrossed, Brain } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
@@ -19,6 +19,7 @@ const items = [
   { translationKey: "nav.exercises", url: "/exercises", icon: Dumbbell },
   { translationKey: "nav.meals", url: "/meals", icon: UtensilsCrossed },
   { translationKey: "nav.reports", url: "/reports", icon: BarChart3 },
+  { translationKey: "nav.healthRisk", url: "/health-risk", icon: Brain },
   { translationKey: "nav.settings", url: "/settings", icon: Settings },
 ];
 
