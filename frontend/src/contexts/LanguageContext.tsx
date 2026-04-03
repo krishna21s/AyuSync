@@ -15,6 +15,7 @@ const dictionary: Translations = {
   "nav.medicines": { EN: "Medicines", TE: "మందులు" },
   "nav.routine": { EN: "Routine", TE: "దినచర్య" },
   "nav.reports": { EN: "Reports", TE: "నివేదికలు" },
+  "nav.healthRisk": { EN: "AI Risk Predictor", TE: "AI రిస్క్ ప్రెడిక్టర్" },
   "nav.settings": { EN: "Settings", TE: "సెట్టింగులు" },
 
   // Bottom Nav

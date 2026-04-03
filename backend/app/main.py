@@ -20,6 +20,7 @@ from app.routers.meals import router as meals_router
 from app.routers.exercises import router as exercises_router
 from app.routers.ai_tips import router as ai_tips_router
 from app.routers.prescription import router as prescription_router
+from app.routers.health_risk import router as health_risk_router
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("healthai")
@@ -72,6 +73,7 @@ app.include_router(meals_router)
 app.include_router(exercises_router)
 app.include_router(ai_tips_router)
 app.include_router(prescription_router)
+app.include_router(health_risk_router)
 
 
 # ── Health check ─────────────────────────────────────────────────────────────

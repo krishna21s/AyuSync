@@ -6,3 +6,4 @@ export { exercisesService } from "./exercises";
 export { dashboardService } from "./dashboard";
 export { reportsService } from "./reports";
 export { aiTipsService } from "./aiTips";
+export { healthRiskService } from "./healthRisk";
