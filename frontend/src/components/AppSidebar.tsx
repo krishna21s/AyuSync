@@ -28,12 +28,14 @@ export function AppSidebar() {
       <SidebarContent className="pt-6">
         <div className="px-4 mb-8">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl neon-highlight flex items-center justify-center font-bold text-xl neon-glow">
-              H+
-            </div>
+            <img
+              src="/logo.png"
+              alt="AyuSync"
+              className="w-10 h-10 rounded-xl object-contain"
+            />
             {!collapsed && (
               <span className="text-xl font-bold tracking-tight text-foreground">
-                HealthAI
+                AyuSync
               </span>
             )}
           </div>

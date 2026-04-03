@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Check, AlarmClock } from "lucide-react";
+import { Check, AlarmClock, Pill } from "lucide-react";
 import { useState } from "react";
 
 interface Medicine {
@@ -30,59 +30,74 @@ export function MedicineScheduleCard() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.1 }}
-      className="glass-card-hover p-6"
+      className="card-white p-6"
     >
       <div className="flex items-center justify-between mb-5">
-        <h3 className="text-xl font-bold">💊 Medicines</h3>
-        <span className="text-sm text-muted-foreground">
+        <div className="flex items-center gap-3">
+          <div className="stat-icon-box bg-gray-100">
+            <Pill className="h-5 w-5 text-gray-600" />
+          </div>
+          <h3 className="text-lg font-bold text-gray-900">Medicines</h3>
+        </div>
+        <span className="text-sm text-gray-500 font-medium bg-gray-100 px-3 py-1 rounded-full">
           {meds.filter((m) => m.status === "taken").length}/{meds.length} taken
         </span>
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-2.5">
         {meds.map((med) => (
-          <div
+          <motion.div
             key={med.id}
-            className={`flex items-center justify-between p-4 rounded-xl transition-all ${
+            whileHover={{ x: 3 }}
+            className={`flex items-center justify-between p-3.5 rounded-xl transition-all border ${
               med.status === "taken"
-                ? "bg-primary/10 border border-primary/30"
+                ? "bg-gray-50 border-gray-100"
                 : med.status === "missed"
-                ? "bg-destructive/10 border border-destructive/30"
-                : "bg-muted"
+                ? "bg-red-50/50 border-red-100/50"
+                : "bg-white border-gray-100"
             }`}
           >
-            <div>
-              <p className={`font-semibold text-base ${med.status === "taken" ? "line-through opacity-60" : ""}`}>
-                {med.name}
-              </p>
-              <p className="text-sm text-muted-foreground">{med.time}</p>
+            <div className="flex items-center gap-3">
+              <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${
+                med.status === "taken" ? "bg-green-50" : med.status === "missed" ? "bg-red-50" : "bg-gray-50"
+              }`}>
+                <Pill className={`h-4 w-4 ${
+                  med.status === "taken" ? "text-green-600" : med.status === "missed" ? "text-red-500" : "text-gray-500"
+                }`} />
+              </div>
+              <div>
+                <p className={`font-semibold text-sm ${med.status === "taken" ? "line-through text-gray-400" : "text-gray-900"}`}>
+                  {med.name}
+                </p>
+                <p className="text-xs text-gray-400 mt-0.5">{med.time}</p>
+              </div>
             </div>
             <div className="flex gap-2">
               {med.status === "pending" && (
                 <>
                   <button
                     onClick={() => markTaken(med.id)}
-                    className="elder-btn bg-primary text-primary-foreground px-4 py-2 min-h-[44px] text-base flex items-center gap-1.5"
+                    className="bg-primary text-primary-foreground px-3.5 py-2 min-h-[40px] text-sm font-semibold rounded-lg flex items-center gap-1.5 active:scale-95 transition-all"
                   >
-                    <Check className="h-4 w-4" /> Taken
+                    <Check className="h-3.5 w-3.5" /> Taken
                   </button>
-                  <button className="p-2.5 rounded-xl bg-muted-foreground/10 hover:bg-muted-foreground/20 transition-colors">
-                    <AlarmClock className="h-5 w-5 text-muted-foreground" />
+                  <button className="p-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
+                    <AlarmClock className="h-4 w-4 text-gray-400" />
                   </button>
                 </>
               )}
               {med.status === "taken" && (
-                <span className="text-sm font-medium text-primary px-3 py-1.5 rounded-lg bg-primary/10">
-                  ✅ Done
+                <span className="text-xs font-medium text-green-600 px-2.5 py-1.5 rounded-lg bg-green-50 flex items-center gap-1">
+                  <Check className="h-3 w-3" /> Done
                 </span>
               )}
               {med.status === "missed" && (
-                <span className="text-sm font-medium text-destructive px-3 py-1.5 rounded-lg bg-destructive/10">
-                  ❌ Missed
+                <span className="text-xs font-medium text-red-500 px-2.5 py-1.5 rounded-lg bg-red-50">
+                  Missed
                 </span>
               )}
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
     </motion.div>

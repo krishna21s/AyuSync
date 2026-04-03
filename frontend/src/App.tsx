@@ -7,6 +7,7 @@ import Index from "./pages/Index.tsx";
 import Medicines from "./pages/Medicines.tsx";
 import Reports from "./pages/Reports.tsx";
 import Routine from "./pages/Routine.tsx";
+import Settings from "./pages/Settings.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -22,6 +23,7 @@ const App = () => (
           <Route path="/medicines" element={<Medicines />} />
           <Route path="/reports" element={<Reports />} />
           <Route path="/routine" element={<Routine />} />
+          <Route path="/settings" element={<Settings />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

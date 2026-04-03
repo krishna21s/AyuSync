@@ -4,9 +4,9 @@ import { useLocation, useNavigate } from "react-router-dom";
 const items = [
   { icon: Home, label: "Home", path: "/" },
   { icon: Pill, label: "Medicines", path: "/medicines" },
-  { icon: Plus, label: "Add", path: "/add", center: true },
+  { icon: Plus, label: "Add", path: "/medicines", center: true },
   { icon: BarChart3, label: "Reports", path: "/reports" },
-  { icon: User, label: "Profile", path: "/profile" },
+  { icon: User, label: "Profile", path: "/settings" },
 ];
 
 export function BottomNav() {

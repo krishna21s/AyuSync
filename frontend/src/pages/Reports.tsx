@@ -4,7 +4,7 @@ import { TopNavbar } from "@/components/TopNavbar";
 import { BottomNav } from "@/components/BottomNav";
 import { VoiceButton } from "@/components/VoiceButton";
 import { motion } from "framer-motion";
-import { TrendingUp, Calendar, Pill, Droplets } from "lucide-react";
+import { TrendingUp, CalendarDays, Pill, Droplets, BarChart3, Activity } from "lucide-react";
 import {
   ChartContainer,
   ChartTooltip,
@@ -34,20 +34,27 @@ const waterData = [
 ];
 
 const categoryData = [
-  { name: "Diabetes", value: 30, fill: "hsl(var(--primary))" },
-  { name: "BP", value: 25, fill: "hsl(var(--foreground))" },
-  { name: "Supplements", value: 30, fill: "hsl(var(--muted-foreground))" },
-  { name: "Heart", value: 15, fill: "hsl(var(--border))" },
+  { name: "Diabetes", value: 30, fill: "hsl(72, 100%, 50%)" },
+  { name: "BP", value: 25, fill: "hsl(0, 0%, 25%)" },
+  { name: "Supplements", value: 30, fill: "hsl(0, 0%, 60%)" },
+  { name: "Heart", value: 15, fill: "hsl(0, 0%, 80%)" },
 ];
 
 const adherenceConfig: ChartConfig = {
-  taken: { label: "Taken", color: "hsl(var(--primary))" },
-  missed: { label: "Missed", color: "hsl(var(--destructive))" },
+  taken: { label: "Taken", color: "hsl(72, 100%, 50%)" },
+  missed: { label: "Missed", color: "hsl(0, 0%, 80%)" },
 };
 
 const waterConfig: ChartConfig = {
-  glasses: { label: "Glasses", color: "hsl(var(--primary))" },
+  glasses: { label: "Glasses", color: "hsl(72, 100%, 50%)" },
 };
+
+const statCards = [
+  { label: "Adherence Rate", value: "92%", icon: TrendingUp },
+  { label: "Current Streak", value: "12 days", icon: CalendarDays },
+  { label: "Medicines Today", value: "4/6", icon: Pill },
+  { label: "Avg Water/Day", value: "6.4", icon: Droplets },
+];
 
 const Reports = () => {
   return (
@@ -59,39 +66,47 @@ const Reports = () => {
           <main className="flex-1 p-4 md:p-6 pb-24 md:pb-6 overflow-y-auto">
             <div className="max-w-6xl mx-auto">
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
-                <h2 className="elder-heading mb-2">📊 Reports & Analytics</h2>
-                <p className="text-muted-foreground">Track your health progress over time</p>
+                <div className="flex items-center gap-3 mb-1">
+                  <div className="stat-icon-box bg-gray-100">
+                    <BarChart3 className="h-5 w-5 text-gray-600" />
+                  </div>
+                  <h2 className="elder-heading">Reports & Analytics</h2>
+                </div>
+                <p className="text-gray-500 text-sm">Track your health progress over time</p>
               </motion.div>
 
               {/* Summary stats */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-                {[
-                  { label: "Adherence Rate", value: "92%", icon: TrendingUp },
-                  { label: "Current Streak", value: "12 days", icon: Calendar },
-                  { label: "Medicines Today", value: "4/6", icon: Pill },
-                  { label: "Avg Water/Day", value: "6.4 glasses", icon: Droplets },
-                ].map((stat, i) => (
+                {statCards.map((stat, i) => (
                   <motion.div
                     key={stat.label}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 + i * 0.05 }}
-                    className="glass-card p-4"
+                    whileHover={{ y: -2 }}
+                    className="card-white p-4"
                   >
-                    <div className="flex items-center gap-2 mb-2">
-                      <stat.icon className="h-5 w-5 text-muted-foreground" />
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="stat-icon-box bg-gray-100">
+                        <stat.icon className="h-4 w-4 text-gray-500" />
+                      </div>
                     </div>
-                    <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-                    <p className="text-sm text-muted-foreground">{stat.label}</p>
+                    <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                    <p className="text-xs text-gray-500 mt-0.5">{stat.label}</p>
                   </motion.div>
                 ))}
               </div>
 
               {/* Charts */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
                 {/* Weekly Adherence */}
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="glass-card-hover p-6">
-                  <h3 className="text-lg font-bold mb-4">Weekly Medicine Adherence</h3>
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="card-white-hover p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="stat-icon-box bg-gray-100">
+                      <Activity className="h-4 w-4 text-gray-500" />
+                    </div>
+                    <h3 className="text-sm font-bold text-gray-900">Weekly Medicine Adherence</h3>
+                  </div>
                   <ChartContainer config={adherenceConfig} className="h-[250px] w-full">
                     <BarChart data={weeklyAdherence}>
                       <XAxis dataKey="day" tickLine={false} axisLine={false} />
@@ -104,8 +119,13 @@ const Reports = () => {
                 </motion.div>
 
                 {/* Water Intake Trend */}
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="glass-card-hover p-6">
-                  <h3 className="text-lg font-bold mb-4">Water Intake Trend</h3>
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="card-white-hover p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="stat-icon-box bg-gray-100">
+                      <Droplets className="h-4 w-4 text-gray-500" />
+                    </div>
+                    <h3 className="text-sm font-bold text-gray-900">Water Intake Trend</h3>
+                  </div>
                   <ChartContainer config={waterConfig} className="h-[250px] w-full">
                     <LineChart data={waterData}>
                       <XAxis dataKey="day" tickLine={false} axisLine={false} />
@@ -117,8 +137,13 @@ const Reports = () => {
                 </motion.div>
 
                 {/* Medicine Categories */}
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="glass-card-hover p-6">
-                  <h3 className="text-lg font-bold mb-4">Medicine Categories</h3>
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="card-white-hover p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="stat-icon-box bg-gray-100">
+                      <Pill className="h-4 w-4 text-gray-500" />
+                    </div>
+                    <h3 className="text-sm font-bold text-gray-900">Medicine Categories</h3>
+                  </div>
                   <div className="h-[250px] flex items-center justify-center">
                     <PieChart width={220} height={220}>
                       <Pie data={categoryData} cx={110} cy={110} innerRadius={55} outerRadius={90} paddingAngle={4} dataKey="value">
@@ -130,17 +155,22 @@ const Reports = () => {
                   </div>
                   <div className="flex flex-wrap gap-3 mt-2 justify-center">
                     {categoryData.map((c) => (
-                      <div key={c.name} className="flex items-center gap-1.5 text-sm">
-                        <div className="w-3 h-3 rounded-sm" style={{ background: c.fill }} />
-                        <span className="text-muted-foreground">{c.name}</span>
+                      <div key={c.name} className="flex items-center gap-1.5 text-xs">
+                        <div className="w-2.5 h-2.5 rounded-sm" style={{ background: c.fill }} />
+                        <span className="text-gray-500">{c.name}</span>
                       </div>
                     ))}
                   </div>
                 </motion.div>
 
                 {/* Monthly Summary */}
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="glass-card-hover p-6">
-                  <h3 className="text-lg font-bold mb-4">Monthly Summary</h3>
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="card-white-hover p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="stat-icon-box bg-gray-100">
+                      <CalendarDays className="h-4 w-4 text-gray-500" />
+                    </div>
+                    <h3 className="text-sm font-bold text-gray-900">Monthly Summary</h3>
+                  </div>
                   <div className="space-y-4">
                     {[
                       { label: "Medicines Taken", value: "168/180", pct: 93 },
@@ -149,11 +179,11 @@ const Reports = () => {
                       { label: "Doctor Visits", value: "2 completed", pct: 100 },
                     ].map((item) => (
                       <div key={item.label}>
-                        <div className="flex justify-between mb-1">
-                          <span className="text-sm font-medium text-foreground">{item.label}</span>
-                          <span className="text-sm text-muted-foreground">{item.value}</span>
+                        <div className="flex justify-between mb-1.5">
+                          <span className="text-xs font-medium text-gray-700">{item.label}</span>
+                          <span className="text-xs text-gray-400">{item.value}</span>
                         </div>
-                        <div className="h-2 bg-muted rounded-full overflow-hidden">
+                        <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                           <motion.div
                             initial={{ width: 0 }}
                             animate={{ width: `${item.pct}%` }}

@@ -20,10 +20,10 @@ const Index = () => {
           <TopNavbar />
 
           <main className="flex-1 p-4 md:p-6 pb-24 md:pb-6 overflow-y-auto">
-            <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+            <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
               <HeroCard />
               <MedicineScheduleCard />
-              <div className="flex flex-col gap-4 md:gap-6">
+              <div className="flex flex-col gap-4 md:gap-5">
                 <StreakTrackerCard />
                 <WaterIntakeCard />
               </div>

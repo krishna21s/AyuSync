@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Plus } from "lucide-react";
+import { Plus, Droplets, GlassWater } from "lucide-react";
 import { useState } from "react";
 
 export function WaterIntakeCard() {
@@ -11,11 +11,16 @@ export function WaterIntakeCard() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.3 }}
-      className="glass-card-hover p-6"
+      className="card-white p-6"
     >
       <div className="flex items-center justify-between mb-5">
-        <h3 className="text-xl font-bold">💧 Water Intake</h3>
-        <span className="text-sm text-muted-foreground">{glasses}/{total}</span>
+        <div className="flex items-center gap-3">
+          <div className="stat-icon-box bg-gray-100">
+            <Droplets className="h-5 w-5 text-gray-600" />
+          </div>
+          <h3 className="text-lg font-bold text-gray-900">Water Intake</h3>
+        </div>
+        <span className="text-sm text-gray-500 font-medium bg-gray-100 px-3 py-1 rounded-full">{glasses}/{total}</span>
       </div>
 
       <div className="flex gap-2 mb-5 flex-wrap">
@@ -25,13 +30,13 @@ export function WaterIntakeCard() {
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.4 + i * 0.05 }}
-            className={`w-10 h-12 rounded-xl flex items-center justify-center text-lg transition-all ${
+            className={`w-9 h-11 rounded-lg flex items-center justify-center transition-all border ${
               i < glasses
-                ? "bg-accent/20 border-2 border-accent"
-                : "bg-muted border-2 border-transparent"
+                ? "bg-primary/10 border-primary/30"
+                : "bg-gray-50 border-gray-100"
             }`}
           >
-            {i < glasses ? "💧" : "○"}
+            <GlassWater className={`h-4 w-4 ${i < glasses ? "text-primary" : "text-gray-300"}`} />
           </motion.div>
         ))}
       </div>
@@ -39,7 +44,7 @@ export function WaterIntakeCard() {
       <button
         onClick={() => setGlasses((g) => Math.min(g + 1, total))}
         disabled={glasses >= total}
-        className="elder-btn w-full bg-primary text-primary-foreground flex items-center justify-center gap-2 disabled:opacity-50"
+        className="elder-btn w-full bg-primary text-primary-foreground flex items-center justify-center gap-2 disabled:opacity-50 transition-colors"
       >
         <Plus className="h-5 w-5" />
         Add Water
