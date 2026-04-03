@@ -16,6 +16,10 @@ from app.routers.routine import router as routine_router
 from app.routers.water import router as water_router
 from app.routers.reports import router as reports_router
 from app.routers.dashboard import router as dashboard_router
+from app.routers.meals import router as meals_router
+from app.routers.exercises import router as exercises_router
+from app.routers.ai_tips import router as ai_tips_router
+from app.routers.prescription import router as prescription_router
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("healthai")
@@ -28,6 +32,7 @@ async def lifespan(app: FastAPI):
     # Startup
     logger.info("Creating database tables …")
     Base.metadata.create_all(bind=engine)
+
     logger.info("Starting scheduler …")
     start_scheduler()
     yield
@@ -63,6 +68,10 @@ app.include_router(routine_router)
 app.include_router(water_router)
 app.include_router(reports_router)
 app.include_router(dashboard_router)
+app.include_router(meals_router)
+app.include_router(exercises_router)
+app.include_router(ai_tips_router)
+app.include_router(prescription_router)
 
 
 # ── Health check ─────────────────────────────────────────────────────────────

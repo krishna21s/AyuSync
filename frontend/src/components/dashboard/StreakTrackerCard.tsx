@@ -3,11 +3,14 @@ import { Flame, Target } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-export function StreakTrackerCard() {
+interface StreakTrackerCardProps {
+  days?: number;
+  goal?: number;
+}
+
+export function StreakTrackerCard({ days = 0, goal = 30 }: StreakTrackerCardProps) {
   const { t } = useLanguage();
-  const streakDays = 12;
-  const maxDays = 30;
-  const percentage = (streakDays / maxDays) * 100;
+  const percentage = goal > 0 ? (days / goal) * 100 : 0;
   const circumference = 2 * Math.PI * 45;
   const offset = circumference - (percentage / 100) * circumference;
 
@@ -35,27 +38,22 @@ export function StreakTrackerCard() {
         <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
           <circle cx="50" cy="50" r="45" fill="none" className="stroke-gray-100" strokeWidth="8" />
           <circle
-            cx="50"
-            cy="50"
-            r="45"
-            fill="none"
-            className="stroke-primary"
-            strokeWidth="8"
-            strokeLinecap="round"
+            cx="50" cy="50" r="45" fill="none"
+            className="stroke-primary" strokeWidth="8" strokeLinecap="round"
             strokeDasharray={circumference}
             strokeDashoffset={animated ? offset : circumference}
             style={{ transition: "stroke-dashoffset 1.5s ease-out" }}
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-2xl font-bold text-gray-900">{streakDays}</span>
+          <span className="text-2xl font-bold text-gray-900">{days}</span>
           <span className="text-[11px] text-gray-400 font-medium">{t("streak.days")}</span>
         </div>
       </div>
 
       <div className="flex items-center gap-1.5 text-sm text-gray-500">
         <Target className="h-3.5 w-3.5" />
-        <span>{maxDays - streakDays} {t("streak.toGoal")}</span>
+        <span>{Math.max(goal - days, 0)} {t("streak.toGoal")}</span>
       </div>
     </motion.div>
   );
