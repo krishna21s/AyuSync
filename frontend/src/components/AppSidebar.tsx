@@ -35,7 +35,7 @@ export function AppSidebar() {
             <img
               src="/logo.png"
               alt="AyuSync"
-              className="w-10 h-10 rounded-xl object-contain"
+              className="w-10 rounded-xl object-contain"
             />
             {!collapsed && (
               <span className="text-xl font-bold tracking-tight text-foreground">
