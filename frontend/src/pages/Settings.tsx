@@ -108,12 +108,10 @@ const Settings = () => {
                         <p className="text-xs text-gray-400">{t(toggle.descKey)}</p>
                       </div>
                     </div>
-                    <div className={`w-11 h-6 rounded-full transition-all duration-300 flex items-center px-0.5 ${
-                      toggle.enabled ? "bg-primary" : "bg-gray-200"
-                    }`}>
-                      <div className={`w-5 h-5 rounded-full bg-white shadow-sm transition-transform duration-300 ${
-                        toggle.enabled ? "translate-x-5" : "translate-x-0"
-                      }`} />
+                    <div className={`w-11 h-6 rounded-full transition-all duration-300 flex items-center px-0.5 ${toggle.enabled ? "bg-primary" : "bg-gray-200"
+                      }`}>
+                      <div className={`w-5 h-5 rounded-full bg-white shadow-sm transition-transform duration-300 ${toggle.enabled ? "translate-x-5" : "translate-x-0"
+                        }`} />
                     </div>
                   </motion.div>
                 ))}

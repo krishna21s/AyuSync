@@ -41,7 +41,7 @@ export function TopNavbar() {
           <img src="/logo.png" alt="AyuSync" className="w-8 h-8 object-contain" />
           <span className="text-lg font-bold tracking-tight">AyuSync</span>
         </div>
-        
+
       </div>
 
       <div className="flex items-center gap-2 md:gap-3">
