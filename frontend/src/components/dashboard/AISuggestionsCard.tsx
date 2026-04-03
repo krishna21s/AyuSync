@@ -1,13 +1,16 @@
 import { motion } from "framer-motion";
 import { Bot, Lightbulb } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const suggestions = [
-  { text: "Take Metformin after food for better absorption", delay: 0.1 },
-  { text: "Go for a 10-min evening walk today", delay: 0.2 },
-  { text: "Drink warm water before bed for better sleep", delay: 0.3 },
+  { tKey: "ai.tip1", delay: 0.1 },
+  { tKey: "ai.tip2", delay: 0.2 },
+  { tKey: "ai.tip3", delay: 0.3 },
 ];
 
 export function AISuggestionsCard() {
+  const { t } = useLanguage();
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -19,7 +22,7 @@ export function AISuggestionsCard() {
         <div className="stat-icon-box bg-gray-100">
           <Bot className="h-5 w-5 text-gray-600" />
         </div>
-        <h3 className="text-lg font-bold text-gray-900">AI Tips</h3>
+        <h3 className="text-lg font-bold text-gray-900">{t("ai.title")}</h3>
       </div>
 
       <div className="space-y-2.5">
@@ -34,7 +37,7 @@ export function AISuggestionsCard() {
             <div className="shrink-0 mt-0.5">
               <Lightbulb className="h-4 w-4 text-gray-400" />
             </div>
-            <p className="text-sm text-gray-700">{s.text}</p>
+            <p className="text-sm text-gray-700">{t(s.tKey)}</p>
           </motion.div>
         ))}
       </div>

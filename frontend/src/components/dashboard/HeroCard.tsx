@@ -1,7 +1,10 @@
 import { motion } from "framer-motion";
 import { Clock, Droplets, Footprints, Sparkles } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export function HeroCard() {
+  const { t } = useLanguage();
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -18,11 +21,11 @@ export function HeroCard() {
           <div className="flex items-center gap-2 mb-4">
             <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-3.5 py-1.5 border border-white/10">
               <Sparkles className="h-3.5 w-3.5 text-primary" />
-              <span className="text-sm font-medium text-white/80">Today's Plan</span>
+              <span className="text-sm font-medium text-white/80">{t("hero.todaysPlan")}</span>
             </div>
           </div>
           <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-white mb-6">
-            Today's Health Plan
+            {t("hero.title")}
           </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -34,7 +37,7 @@ export function HeroCard() {
                 <Clock className="h-5 w-5 text-primary-foreground" />
               </div>
               <div>
-                <p className="text-sm font-medium opacity-75 text-primary-foreground">Next Medicine</p>
+                <p className="text-sm font-medium opacity-75 text-primary-foreground">{t("hero.nextMed")}</p>
                 <p className="text-xl font-bold text-primary-foreground">2:30 PM</p>
               </div>
             </motion.div>
@@ -47,8 +50,8 @@ export function HeroCard() {
                 <Droplets className="h-5 w-5 text-white/80" />
               </div>
               <div>
-                <p className="text-sm font-medium text-white/50">Water Reminder</p>
-                <p className="text-xl font-bold text-white">4 / 8 glasses</p>
+                <p className="text-sm font-medium text-white/50">{t("hero.waterRem")}</p>
+                <p className="text-xl font-bold text-white">4 / 8 {t("hero.glasses")}</p>
               </div>
             </motion.div>
 
@@ -60,8 +63,8 @@ export function HeroCard() {
                 <Footprints className="h-5 w-5 text-white/80" />
               </div>
               <div>
-                <p className="text-sm font-medium text-white/50">Activity</p>
-                <p className="text-xl font-bold text-white">10 min walk</p>
+                <p className="text-sm font-medium text-white/50">{t("hero.activity")}</p>
+                <p className="text-xl font-bold text-white">{t("hero.walk")}</p>
               </div>
             </motion.div>
           </div>

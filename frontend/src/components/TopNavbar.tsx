@@ -1,20 +1,9 @@
 import { Bell, Globe } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export function TopNavbar() {
-  const [lang, setLang] = useState<"EN" | "TE">("EN");
-  const location = useLocation();
-
-  const getGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return "Good Morning";
-    if (hour < 17) return "Good Afternoon";
-    return "Good Evening";
-  };
-
-  const isDashboard = location.pathname === "/";
+  const { lang, setLang } = useLanguage();
 
   return (
     <header className="sticky top-0 z-30 flex items-center justify-between h-16 px-4 md:px-6 bg-white/80 backdrop-blur-lg border-b border-gray-100">
@@ -25,13 +14,6 @@ export function TopNavbar() {
           <img src="/logo.png" alt="AyuSync" className="w-8 h-8 object-contain" />
           <span className="text-lg font-bold tracking-tight">AyuSync</span>
         </div>
-        {isDashboard && (
-          <div className="hidden md:block">
-            <h1 className="text-xl font-bold tracking-tight">
-              {getGreeting()}, Yunus 👋
-            </h1>
-          </div>
-        )}
       </div>
 
       <div className="flex items-center gap-2 md:gap-3">

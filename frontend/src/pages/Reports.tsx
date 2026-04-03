@@ -12,6 +12,7 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart";
 import { BarChart, Bar, XAxis, YAxis, LineChart, Line, PieChart, Pie, Cell } from "recharts";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const weeklyAdherence = [
   { day: "Mon", taken: 4, missed: 0 },
@@ -49,14 +50,16 @@ const waterConfig: ChartConfig = {
   glasses: { label: "Glasses", color: "hsl(72, 100%, 50%)" },
 };
 
-const statCards = [
-  { label: "Adherence Rate", value: "92%", icon: TrendingUp },
-  { label: "Current Streak", value: "12 days", icon: CalendarDays },
-  { label: "Medicines Today", value: "4/6", icon: Pill },
-  { label: "Avg Water/Day", value: "6.4", icon: Droplets },
-];
-
 const Reports = () => {
+  const { t } = useLanguage();
+
+  const statCards = [
+    { label: t("reports.stat1"), value: "92%", icon: TrendingUp },
+    { label: t("reports.stat2"), value: "12 days", icon: CalendarDays },
+    { label: t("reports.stat3"), value: "4/6", icon: Pill },
+    { label: t("reports.stat4"), value: "6.4", icon: Droplets },
+  ];
+
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background">
@@ -70,9 +73,9 @@ const Reports = () => {
                   <div className="stat-icon-box bg-gray-100">
                     <BarChart3 className="h-5 w-5 text-gray-600" />
                   </div>
-                  <h2 className="elder-heading">Reports & Analytics</h2>
+                  <h2 className="elder-heading">{t("reports.title")}</h2>
                 </div>
-                <p className="text-gray-500 text-sm">Track your health progress over time</p>
+                <p className="text-gray-500 text-sm">{t("reports.desc")}</p>
               </motion.div>
 
               {/* Summary stats */}
@@ -105,7 +108,7 @@ const Reports = () => {
                     <div className="stat-icon-box bg-gray-100">
                       <Activity className="h-4 w-4 text-gray-500" />
                     </div>
-                    <h3 className="text-sm font-bold text-gray-900">Weekly Medicine Adherence</h3>
+                    <h3 className="text-sm font-bold text-gray-900">{t("reports.weekly")}</h3>
                   </div>
                   <ChartContainer config={adherenceConfig} className="h-[250px] w-full">
                     <BarChart data={weeklyAdherence}>
@@ -124,7 +127,7 @@ const Reports = () => {
                     <div className="stat-icon-box bg-gray-100">
                       <Droplets className="h-4 w-4 text-gray-500" />
                     </div>
-                    <h3 className="text-sm font-bold text-gray-900">Water Intake Trend</h3>
+                    <h3 className="text-sm font-bold text-gray-900">{t("reports.water")}</h3>
                   </div>
                   <ChartContainer config={waterConfig} className="h-[250px] w-full">
                     <LineChart data={waterData}>
@@ -142,7 +145,7 @@ const Reports = () => {
                     <div className="stat-icon-box bg-gray-100">
                       <Pill className="h-4 w-4 text-gray-500" />
                     </div>
-                    <h3 className="text-sm font-bold text-gray-900">Medicine Categories</h3>
+                    <h3 className="text-sm font-bold text-gray-900">{t("reports.cats")}</h3>
                   </div>
                   <div className="h-[250px] flex items-center justify-center">
                     <PieChart width={220} height={220}>
@@ -169,14 +172,14 @@ const Reports = () => {
                     <div className="stat-icon-box bg-gray-100">
                       <CalendarDays className="h-4 w-4 text-gray-500" />
                     </div>
-                    <h3 className="text-sm font-bold text-gray-900">Monthly Summary</h3>
+                    <h3 className="text-sm font-bold text-gray-900">{t("reports.summary")}</h3>
                   </div>
                   <div className="space-y-4">
                     {[
-                      { label: "Medicines Taken", value: "168/180", pct: 93 },
-                      { label: "Water Goal Met", value: "22/30 days", pct: 73 },
-                      { label: "Routine Followed", value: "25/30 days", pct: 83 },
-                      { label: "Doctor Visits", value: "2 completed", pct: 100 },
+                      { label: t("reports.medsTaken"), value: "168/180", pct: 93 },
+                      { label: t("reports.waterGoal"), value: "22/30 days", pct: 73 },
+                      { label: t("reports.routineFollow"), value: "25/30 days", pct: 83 },
+                      { label: t("reports.docVisit"), value: "2 completed", pct: 100 },
                     ].map((item) => (
                       <div key={item.label}>
                         <div className="flex justify-between mb-1.5">

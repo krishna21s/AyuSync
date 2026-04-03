@@ -1,8 +1,10 @@
 import { motion } from "framer-motion";
 import { Flame, Target } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export function StreakTrackerCard() {
+  const { t } = useLanguage();
   const streakDays = 12;
   const maxDays = 30;
   const percentage = (streakDays / maxDays) * 100;
@@ -11,8 +13,8 @@ export function StreakTrackerCard() {
 
   const [animated, setAnimated] = useState(false);
   useEffect(() => {
-    const t = setTimeout(() => setAnimated(true), 300);
-    return () => clearTimeout(t);
+    const time = setTimeout(() => setAnimated(true), 300);
+    return () => clearTimeout(time);
   }, []);
 
   return (
@@ -26,7 +28,7 @@ export function StreakTrackerCard() {
         <div className="stat-icon-box bg-gray-100">
           <Flame className="h-5 w-5 text-gray-600" />
         </div>
-        <h3 className="text-lg font-bold text-gray-900">Streak</h3>
+        <h3 className="text-lg font-bold text-gray-900">{t("streak.title")}</h3>
       </div>
 
       <div className="relative w-28 h-28 mb-3">
@@ -47,13 +49,13 @@ export function StreakTrackerCard() {
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <span className="text-2xl font-bold text-gray-900">{streakDays}</span>
-          <span className="text-[11px] text-gray-400 font-medium">days</span>
+          <span className="text-[11px] text-gray-400 font-medium">{t("streak.days")}</span>
         </div>
       </div>
 
       <div className="flex items-center gap-1.5 text-sm text-gray-500">
         <Target className="h-3.5 w-3.5" />
-        <span>{maxDays - streakDays} days to goal</span>
+        <span>{maxDays - streakDays} {t("streak.toGoal")}</span>
       </div>
     </motion.div>
   );

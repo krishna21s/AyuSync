@@ -1,18 +1,21 @@
 import { motion } from "framer-motion";
 import { Sunrise, Sun, Moon, CalendarDays, Pill, Coffee, Dumbbell, Footprints, BedDouble } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const routineItems = [
-  { time: "6:00 AM", label: "Wake Up", icon: Sunrise, active: true, period: "morning" },
-  { time: "6:30 AM", label: "Morning Walk", icon: Footprints, active: true, period: "morning" },
-  { time: "8:00 AM", label: "Breakfast + Meds", icon: Pill, active: true, period: "morning" },
-  { time: "12:30 PM", label: "Lunch", icon: Coffee, active: false, period: "afternoon" },
-  { time: "2:30 PM", label: "Afternoon Meds", icon: Pill, current: true, active: false, period: "afternoon" },
-  { time: "5:00 PM", label: "Light Exercise", icon: Dumbbell, active: false, period: "afternoon" },
-  { time: "9:00 PM", label: "Night Meds", icon: Pill, active: false, period: "night" },
-  { time: "10:00 PM", label: "Sleep", icon: BedDouble, active: false, period: "night" },
+  { time: "6:00 AM", tKey: "timeline.wakeup", icon: Sunrise, active: true, period: "morning" },
+  { time: "6:30 AM", tKey: "timeline.morningWalk", icon: Footprints, active: true, period: "morning" },
+  { time: "8:00 AM", tKey: "timeline.breakfast", icon: Pill, active: true, period: "morning" },
+  { time: "12:30 PM", tKey: "timeline.lunch", icon: Coffee, active: false, period: "afternoon" },
+  { time: "2:30 PM", tKey: "timeline.afternoonMeds", icon: Pill, current: true, active: false, period: "afternoon" },
+  { time: "5:00 PM", tKey: "timeline.lightExer", icon: Dumbbell, active: false, period: "afternoon" },
+  { time: "9:00 PM", tKey: "timeline.nightMeds", icon: Pill, active: false, period: "night" },
+  { time: "10:00 PM", tKey: "timeline.sleep", icon: BedDouble, active: false, period: "night" },
 ];
 
 export function TimelineCard() {
+  const { t } = useLanguage();
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -24,7 +27,7 @@ export function TimelineCard() {
         <div className="stat-icon-box bg-gray-100">
           <CalendarDays className="h-5 w-5 text-gray-600" />
         </div>
-        <h3 className="text-lg font-bold text-gray-900">Daily Routine</h3>
+        <h3 className="text-lg font-bold text-gray-900">{t("timeline.title")}</h3>
       </div>
 
       <div className="overflow-x-auto pb-2 -mx-2 px-2">
@@ -59,7 +62,7 @@ export function TimelineCard() {
                 {item.time}
               </p>
               <p className={`text-xs font-medium mt-1 text-center ${item.current ? "" : "text-gray-700"}`}>
-                {item.label}
+                {t(item.tKey)}
               </p>
             </motion.div>
           ))}

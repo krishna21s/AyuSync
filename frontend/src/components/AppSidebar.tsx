@@ -1,5 +1,6 @@
-import { LayoutDashboard, Pill, Activity, BarChart3, Settings } from "lucide-react";
+import { LayoutDashboard, Pill, Activity, BarChart3, Settings, Dumbbell, UtensilsCrossed } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
+import { useLanguage } from "@/contexts/LanguageContext";
 import {
   Sidebar,
   SidebarContent,
@@ -12,15 +13,18 @@ import {
 } from "@/components/ui/sidebar";
 
 const items = [
-  { title: "Dashboard", url: "/", icon: LayoutDashboard },
-  { title: "Medicines", url: "/medicines", icon: Pill },
-  { title: "Routine", url: "/routine", icon: Activity },
-  { title: "Reports", url: "/reports", icon: BarChart3 },
-  { title: "Settings", url: "/settings", icon: Settings },
+  { translationKey: "nav.dashboard", url: "/", icon: LayoutDashboard },
+  { translationKey: "nav.medicines", url: "/medicines", icon: Pill },
+  { translationKey: "nav.routine", url: "/routine", icon: Activity },
+  { translationKey: "nav.exercises", url: "/exercises", icon: Dumbbell },
+  { translationKey: "nav.meals", url: "/meals", icon: UtensilsCrossed },
+  { translationKey: "nav.reports", url: "/reports", icon: BarChart3 },
+  { translationKey: "nav.settings", url: "/settings", icon: Settings },
 ];
 
 export function AppSidebar() {
   const { state } = useSidebar();
+  const { t } = useLanguage();
   const collapsed = state === "collapsed";
 
   return (
@@ -45,7 +49,7 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu className="space-y-1 px-2">
               {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
+                <SidebarMenuItem key={item.translationKey}>
                   <SidebarMenuButton asChild className="h-12 rounded-xl text-base">
                     <NavLink
                       to={item.url}
@@ -54,7 +58,7 @@ export function AppSidebar() {
                       activeClassName="bg-primary text-primary-foreground font-semibold neon-glow"
                     >
                       <item.icon className="h-5 w-5 shrink-0" />
-                      {!collapsed && <span>{item.title}</span>}
+                      {!collapsed && <span>{t(item.translationKey)}</span>}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

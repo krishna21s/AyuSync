@@ -1,10 +1,12 @@
 import { motion } from "framer-motion";
 import { Plus, Droplets, GlassWater } from "lucide-react";
 import { useState } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export function WaterIntakeCard() {
   const [glasses, setGlasses] = useState(4);
   const total = 8;
+  const { t } = useLanguage();
 
   return (
     <motion.div
@@ -18,7 +20,7 @@ export function WaterIntakeCard() {
           <div className="stat-icon-box bg-gray-100">
             <Droplets className="h-5 w-5 text-gray-600" />
           </div>
-          <h3 className="text-lg font-bold text-gray-900">Water Intake</h3>
+          <h3 className="text-lg font-bold text-gray-900">{t("water.title")}</h3>
         </div>
         <span className="text-sm text-gray-500 font-medium bg-gray-100 px-3 py-1 rounded-full">{glasses}/{total}</span>
       </div>
@@ -47,7 +49,7 @@ export function WaterIntakeCard() {
         className="elder-btn w-full bg-primary text-primary-foreground flex items-center justify-center gap-2 disabled:opacity-50 transition-colors"
       >
         <Plus className="h-5 w-5" />
-        Add Water
+        {t("water.add")}
       </button>
     </motion.div>
   );
