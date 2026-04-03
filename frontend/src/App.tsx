@@ -36,41 +36,26 @@ function GuestRoute({ children }: { children: React.ReactNode }) {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <LanguageProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/medicines" element={<Medicines />} />
-            <Route path="/reports" element={<Reports />} />
-            <Route path="/routine" element={<Routine />} />
-            <Route path="/exercises" element={<Exercises />} />
-            <Route path="/meals" element={<Meals />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </LanguageProvider>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
       <AuthProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/auth" element={<GuestRoute><AuthPage /></GuestRoute>} />
-            <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
-            <Route path="/medicines" element={<ProtectedRoute><Medicines /></ProtectedRoute>} />
-            <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
-            <Route path="/routine" element={<ProtectedRoute><Routine /></ProtectedRoute>} />
-            <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/auth" element={<GuestRoute><AuthPage /></GuestRoute>} />
+              <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+              <Route path="/medicines" element={<ProtectedRoute><Medicines /></ProtectedRoute>} />
+              <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
+              <Route path="/routine" element={<ProtectedRoute><Routine /></ProtectedRoute>} />
+              <Route path="/exercises" element={<ProtectedRoute><Exercises /></ProtectedRoute>} />
+              <Route path="/meals" element={<ProtectedRoute><Meals /></ProtectedRoute>} />
+              <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
       </AuthProvider>
-    </TooltipProvider>
+    </LanguageProvider>
   </QueryClientProvider>
 );
 

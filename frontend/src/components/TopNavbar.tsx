@@ -1,15 +1,12 @@
 import { Bell, Globe, LogOut } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useLanguage } from "@/contexts/LanguageContext";
-
-export function TopNavbar() {
-  const { lang, setLang } = useLanguage();
 import { useState, useRef, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 
 export function TopNavbar() {
-  const [lang, setLang] = useState<"EN" | "TE">("EN");
+  const { lang, setLang } = useLanguage();
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
