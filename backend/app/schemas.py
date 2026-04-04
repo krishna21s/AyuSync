@@ -21,6 +21,16 @@ class RegisterRequest(BaseModel):
     name: str = Field(..., min_length=1, max_length=100)
     email: str = Field(..., min_length=5, max_length=255)
     password: str = Field(..., min_length=6)
+    phone: Optional[str] = None    # +91XXXXXXXXXX — enables WhatsApp features
+
+
+class SendOTPRequest(BaseModel):
+    phone: str = Field(..., description="Phone with country code, e.g. +919876543210")
+
+
+class VerifyOTPRequest(BaseModel):
+    phone: str
+    code: str = Field(..., min_length=6, max_length=6)
 
 
 class LoginRequest(BaseModel):
@@ -45,6 +55,10 @@ class UserOut(BaseModel):
     email: str
     language: str
     avatar_url: Optional[str] = None
+    phone: Optional[str] = None
+    phone_verified: bool = False
+    caretaker_phone: Optional[str] = None
+    report_time: str = "21:00"
 
     class Config:
         from_attributes = True
@@ -54,6 +68,9 @@ class UserUpdate(BaseModel):
     name: Optional[str] = None
     language: Optional[str] = None
     avatar_url: Optional[str] = None
+    phone: Optional[str] = None
+    caretaker_phone: Optional[str] = None
+    report_time: Optional[str] = None    # HH:MM
 
 
 # rebuild forward ref used in AuthResponse
@@ -144,6 +161,13 @@ class RoutineTaskCreate(BaseModel):
     order: int = 0
 
 
+class RoutineTaskUpdate(BaseModel):
+    name: Optional[str] = None
+    scheduled_time: Optional[str] = None
+    period: Optional[str] = None
+    order: Optional[int] = None
+
+
 class RoutineTaskOut(BaseModel):
     id: int
     name: str
@@ -173,6 +197,127 @@ class WaterLogOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class WaterGoalUpdate(BaseModel):
+    daily_goal: int = Field(..., ge=1, le=20)
+
+
+# ── Meals ────────────────────────────────────────────────────────────────────
+
+class MealCreate(BaseModel):
+    name: str
+    description: Optional[str] = None
+    meal_period: str             # breakfast|lunch|snacks|dinner
+    kcal: int = 0
+    protein_g: float = 0.0
+    carbs_g: float = 0.0
+    fiber_g: float = 0.0
+    image_url: Optional[str] = None
+    tags: Optional[str] = None   # JSON string
+
+
+class MealOut(BaseModel):
+    id: int
+    name: str
+    description: Optional[str] = None
+    meal_period: str
+    kcal: int
+    protein_g: float
+    carbs_g: float
+    fiber_g: float
+    image_url: Optional[str] = None
+    tags: Optional[str] = None
+    is_active: bool
+
+    class Config:
+        from_attributes = True
+
+
+class MealLogCreate(BaseModel):
+    meal_id: int
+    notes: Optional[str] = None
+
+
+class MealLogOut(BaseModel):
+    id: int
+    meal_id: int
+    date: date
+    logged_at: datetime
+    notes: Optional[str] = None
+    meal: Optional[MealOut] = None
+
+    class Config:
+        from_attributes = True
+
+
+class MealsByPeriodResponse(BaseModel):
+    meals: list[MealOut]
+    nutrition_summary: dict       # {total_kcal, protein_g, carbs_g, fiber_g}
+
+
+# ── Exercises ────────────────────────────────────────────────────────────────
+
+class ExerciseCreate(BaseModel):
+    name: str
+    description: Optional[str] = None
+    category: str                # yoga|walking|stretching
+    phase: str                   # warmup|main|cooldown
+    duration_seconds: int = 30
+    reps: Optional[int] = None
+    difficulty: str = "easy"
+    muscle_group: Optional[str] = None
+    image_url: Optional[str] = None
+    steps: Optional[str] = None  # JSON string
+
+
+class ExerciseOut(BaseModel):
+    id: int
+    name: str
+    description: Optional[str] = None
+    category: str
+    phase: str
+    duration_seconds: int
+    reps: Optional[int] = None
+    difficulty: str
+    muscle_group: Optional[str] = None
+    image_url: Optional[str] = None
+    steps: Optional[str] = None
+    is_active: bool
+
+    class Config:
+        from_attributes = True
+
+
+class ExerciseLogCreate(BaseModel):
+    exercise_id: int
+    duration_seconds: int = 0
+
+
+class ExerciseLogOut(BaseModel):
+    id: int
+    exercise_id: int
+    date: date
+    completed_at: datetime
+    duration_seconds: int
+    exercise: Optional[ExerciseOut] = None
+
+    class Config:
+        from_attributes = True
+
+
+class ExerciseProgressResponse(BaseModel):
+    completed: int
+    total: int
+    progress_pct: int
+    duration_done: int
+    duration_total: int
+
+
+# ── AI Tips ──────────────────────────────────────────────────────────────────
+
+class AITipsResponse(BaseModel):
+    tips: list[str]
 
 
 # ── Reports ──────────────────────────────────────────────────────────────────
@@ -237,6 +382,17 @@ class DashboardRoutineItem(BaseModel):
     is_completed: bool
 
 
+class DashboardMealsToday(BaseModel):
+    logged_count: int
+    total_kcal: int
+
+
+class DashboardExercisesToday(BaseModel):
+    completed: int
+    total: int
+    progress_pct: int
+
+
 class DashboardResponse(BaseModel):
     user: UserOut
     next_medicine: Optional[NextMedicine] = None
@@ -246,3 +402,5 @@ class DashboardResponse(BaseModel):
     medicines_summary: DashboardMedicineSummary
     routine_timeline: list[DashboardRoutineItem]
     ai_tips: list[str]
+    meals_today: DashboardMealsToday
+    exercises_today: DashboardExercisesToday

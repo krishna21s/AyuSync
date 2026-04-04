@@ -1,25 +1,29 @@
 """Dashboard — single aggregation endpoint for the home screen."""
 
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.models import Medicine, DoseLog, WaterLog, RoutineTask, RoutineLog, User
+from app.models import (
+    Medicine, DoseLog, WaterLog, RoutineTask, RoutineLog,
+    MealLog, Exercise, ExerciseLog, User,
+)
 from app.schemas import (
     ApiResponse, DashboardResponse, DashboardWater, DashboardStreak,
     DashboardMedicineSummary, DashboardRoutineItem, MedicineTodayItem,
     MedicineOut, DoseLogOut, NextMedicine, UserOut,
+    DashboardMealsToday, DashboardExercisesToday,
 )
 from app.auth import get_current_user
-from app.services.ai_tips import get_tips
+from app.services.ai_tips import get_ai_tips
 
 router = APIRouter(prefix="/api/dashboard", tags=["Dashboard"])
 
 
 @router.get("", response_model=ApiResponse)
-def dashboard(
+async def dashboard(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -75,7 +79,6 @@ def dashboard(
     )
 
     # ── streak ──
-    from datetime import timedelta
     streak = 0
     d = today
     while True:
@@ -94,7 +97,7 @@ def dashboard(
 
     streak_data = DashboardStreak(days=streak, goal=30)
 
-    # ── activity today (pick first "walk" routine, or first task) ──
+    # ── activity today ──
     walk_task = (
         db.query(RoutineTask)
         .filter(
@@ -126,9 +129,38 @@ def dashboard(
             is_completed=log.is_completed if log else False,
         ))
 
-    # ── AI tips ──
+    # ── meals today ──
+    meal_logs = (
+        db.query(MealLog)
+        .filter(MealLog.user_id == current_user.id, MealLog.date == today)
+        .all()
+    )
+    meals_kcal = 0
+    for ml in meal_logs:
+        if ml.meal:
+            meals_kcal += ml.meal.kcal
+    meals_today = DashboardMealsToday(
+        logged_count=len(meal_logs),
+        total_kcal=meals_kcal,
+    )
+
+    # ── exercises today ──
+    total_exercises = db.query(Exercise).filter(Exercise.is_active == True).count()
+    completed_exercises = (
+        db.query(ExerciseLog)
+        .filter(ExerciseLog.user_id == current_user.id, ExerciseLog.date == today)
+        .count()
+    )
+    ex_pct = int((completed_exercises / total_exercises) * 100) if total_exercises > 0 else 0
+    exercises_today = DashboardExercisesToday(
+        completed=completed_exercises,
+        total=total_exercises,
+        progress_pct=ex_pct,
+    )
+
+    # ── AI tips (Groq with fallback) ──
     med_dicts = [{"name": m.name, "category": m.category} for m in meds]
-    ai_tips = get_tips(med_dicts, now.hour)
+    ai_tips = await get_ai_tips(med_dicts, now.hour)
 
     payload = DashboardResponse(
         user=user_out,
@@ -139,5 +171,7 @@ def dashboard(
         medicines_summary=medicines_summary,
         routine_timeline=timeline,
         ai_tips=ai_tips,
+        meals_today=meals_today,
+        exercises_today=exercises_today,
     )
     return ApiResponse(data=payload.model_dump())

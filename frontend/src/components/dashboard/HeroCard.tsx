@@ -2,8 +2,19 @@ import { motion } from "framer-motion";
 import { Clock, Droplets, Footprints, Sparkles } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-export function HeroCard() {
+interface HeroCardProps {
+  nextMedicine?: { name: string; dosage: string; time: string } | null;
+  waterData?: { glasses_count: number; daily_goal: number };
+  activityToday?: string;
+}
+
+export function HeroCard({ nextMedicine, waterData, activityToday }: HeroCardProps) {
   const { t } = useLanguage();
+
+  const nextTime = nextMedicine?.time || "--:--";
+  const glasses = waterData?.glasses_count ?? 0;
+  const goal = waterData?.daily_goal ?? 8;
+  const activity = activityToday || t("hero.walk");
 
   return (
     <motion.div
@@ -13,7 +24,6 @@ export function HeroCard() {
       className="col-span-full"
     >
       <div className="card-dark p-6 md:p-8 relative overflow-hidden">
-        {/* Decorative blur */}
         <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-40 h-40 bg-primary/10 rounded-full blur-2xl translate-y-1/3 -translate-x-1/4 pointer-events-none" />
 
@@ -38,7 +48,7 @@ export function HeroCard() {
               </div>
               <div>
                 <p className="text-sm font-medium opacity-75 text-primary-foreground">{t("hero.nextMed")}</p>
-                <p className="text-xl font-bold text-primary-foreground">2:30 PM</p>
+                <p className="text-xl font-bold text-primary-foreground">{nextTime}</p>
               </div>
             </motion.div>
 
@@ -51,7 +61,7 @@ export function HeroCard() {
               </div>
               <div>
                 <p className="text-sm font-medium text-white/50">{t("hero.waterRem")}</p>
-                <p className="text-xl font-bold text-white">4 / 8 {t("hero.glasses")}</p>
+                <p className="text-xl font-bold text-white">{glasses} / {goal} {t("hero.glasses")}</p>
               </div>
             </motion.div>
 
@@ -64,7 +74,7 @@ export function HeroCard() {
               </div>
               <div>
                 <p className="text-sm font-medium text-white/50">{t("hero.activity")}</p>
-                <p className="text-xl font-bold text-white">{t("hero.walk")}</p>
+                <p className="text-xl font-bold text-white">{activity}</p>
               </div>
             </motion.div>
           </div>

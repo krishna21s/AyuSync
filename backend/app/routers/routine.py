@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models import RoutineTask, RoutineLog, User
 from app.schemas import (
-    ApiResponse, RoutineTaskCreate, RoutineTaskOut, RoutineTodayResponse,
+    ApiResponse, RoutineTaskCreate, RoutineTaskUpdate, RoutineTaskOut, RoutineTodayResponse,
 )
 from app.auth import get_current_user
 
@@ -110,6 +110,75 @@ def create_task(
         is_completed=False,
     )
     return ApiResponse(data=out.model_dump())
+
+
+# ── PATCH /api/routine/tasks/{task_id} ───────────────────────────────────────
+
+@router.patch("/tasks/{task_id}", response_model=ApiResponse)
+def update_task(
+    task_id: int,
+    body: RoutineTaskUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    task = (
+        db.query(RoutineTask)
+        .filter(RoutineTask.id == task_id, RoutineTask.user_id == current_user.id)
+        .first()
+    )
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+
+    if body.name is not None:
+        task.name = body.name
+    if body.scheduled_time is not None:
+        task.scheduled_time = body.scheduled_time
+    if body.period is not None:
+        task.period = body.period
+    if body.order is not None:
+        task.order = body.order
+
+    db.commit()
+    db.refresh(task)
+
+    today = date.today()
+    log = (
+        db.query(RoutineLog)
+        .filter(RoutineLog.task_id == task.id, RoutineLog.date == today)
+        .first()
+    )
+
+    out = RoutineTaskOut(
+        id=task.id,
+        name=task.name,
+        scheduled_time=task.scheduled_time,
+        period=task.period,
+        is_active=task.is_active,
+        order=task.order,
+        is_completed=log.is_completed if log else False,
+    )
+    return ApiResponse(data=out.model_dump())
+
+
+# ── DELETE /api/routine/tasks/{task_id} ──────────────────────────────────────
+
+@router.delete("/tasks/{task_id}", response_model=ApiResponse)
+def delete_task(
+    task_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    task = (
+        db.query(RoutineTask)
+        .filter(RoutineTask.id == task_id, RoutineTask.user_id == current_user.id)
+        .first()
+    )
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+
+    task.is_active = False
+    db.commit()
+    return ApiResponse(data={"message": "Task deleted"})
 
 
 # ── PATCH /api/routine/tasks/{task_id}/complete ──────────────────────────────

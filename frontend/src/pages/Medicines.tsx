@@ -8,8 +8,11 @@ import {
   Check, AlarmClock, Plus, Search, Pill, X, Clock,
   Repeat, Tag, Sunrise, Sun, Moon, ScanLine, Camera, Upload
 } from "lucide-react";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useMedicines } from "@/hooks/useMedicines";
+import { medicinesService } from "@/services/medicines";
+import { prescriptionService } from "@/services/prescription";
 
 type Period = "morning" | "afternoon" | "evening";
 
@@ -29,66 +32,142 @@ const periodConfig = {
   evening: { labelKey: "period.evening", tKey: "period.erange", icon: Moon },
 };
 
-const initialMeds: Medicine[] = [
-  { id: 1, name: "mock.metformin", dosage: "500mg", period: "morning", frequency: "Daily", status: "taken", category: "Diabetes" },
-  { id: 2, name: "mock.aml", dosage: "5mg", period: "afternoon", frequency: "Daily", status: "pending", category: "Blood Pressure" },
-  { id: 3, name: "mock.vitd3", dosage: "1000 IU", period: "evening", frequency: "Daily", status: "pending", category: "Supplement" },
-  { id: 4, name: "mock.calc", dosage: "500mg", period: "evening", frequency: "Daily", status: "missed", category: "Supplement" },
-  { id: 5, name: "mock.asp", dosage: "75mg", period: "morning", frequency: "Daily", status: "taken", category: "Heart" },
-  { id: 6, name: "mock.ome", dosage: "20mg", period: "morning", frequency: "Daily", status: "taken", category: "Gastric" },
-];
+// Medicines are now fetched from backend via useMedicines hook
 
 const Medicines = () => {
   const { t } = useLanguage();
-  const [meds, setMeds] = useState(initialMeds);
+  const { medicines: rawMeds, summary, isLoading: medsLoading, refetch } = useMedicines();
+
+  // Map backend medicine data to local Medicine interface
+  const [meds, setMeds] = useState<Medicine[]>([]);
+  useEffect(() => {
+    if (rawMeds && rawMeds.length > 0) {
+      const mapped = rawMeds.map((m: any) => {
+        const hour = parseInt((m.scheduled_time || "12:00").split(":")[0]);
+        let period: Period = "morning";
+        if (hour >= 12 && hour < 17) period = "afternoon";
+        else if (hour >= 17) period = "evening";
+        return {
+          id: m.id,
+          name: m.name,
+          dosage: m.dosage,
+          period,
+          frequency: m.frequency || "Daily",
+          status: (m.today_status || "pending") as "pending" | "taken" | "missed",
+          category: m.category || "General",
+        };
+      });
+      setMeds(mapped);
+    }
+  }, [rawMeds]);
+
   const [filter, setFilter] = useState<"all" | "pending" | "taken" | "missed">("all");
   const [search, setSearch] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
   const [showScanModal, setShowScanModal] = useState(false);
   const [newMed, setNewMed] = useState({ name: "", dosage: "", period: "morning" as Period, frequency: "Daily", category: "" });
   const [scannedPreview, setScannedPreview] = useState<string | null>(null);
+  const [scannedFile, setScannedFile] = useState<File | null>(null);
+  const [scanResult, setScanResult] = useState<any[]>([]);
+  const [scanLoading, setScanLoading] = useState(false);
+  const [scanError, setScanError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const markTaken = (id: number) => {
+  const markTaken = async (id: number) => {
+    // Optimistic update
     setMeds((prev) => prev.map((m) => (m.id === id ? { ...m, status: "taken" as const } : m)));
+    try {
+      // Find dose log for today — backend medicines/today has this
+      const todayRes = await medicinesService.today();
+      const items = todayRes?.data?.list || todayRes?.data || [];
+      const match = items.find((item: any) => item.medicine?.id === id && item.dose_log);
+      if (match?.dose_log?.id) {
+        await medicinesService.takeDose(id, match.dose_log.id);
+      }
+      refetch();
+    } catch {
+      // revert on error
+      refetch();
+    }
   };
 
-  const addMedicine = () => {
+  const addMedicine = async () => {
     if (!newMed.name || !newMed.dosage) return;
-    const newEntry: Medicine = {
-      id: Date.now(),
-      name: newMed.name,
-      dosage: newMed.dosage,
-      period: newMed.period,
-      frequency: newMed.frequency,
-      status: "pending",
-      category: newMed.category || "General",
-    };
-    setMeds((prev) => [...prev, newEntry]);
-    setNewMed({ name: "", dosage: "", period: "morning", frequency: "Daily", category: "" });
-    setShowAddForm(false);
+    const timeMap: Record<string, string> = { morning: "08:00", afternoon: "14:00", evening: "21:00" };
+    try {
+      await medicinesService.create({
+        name: newMed.name,
+        dosage: newMed.dosage,
+        scheduled_time: timeMap[newMed.period] || "08:00",
+        category: newMed.category || "General",
+        frequency: newMed.frequency.toLowerCase().replace(" ", "_"),
+      });
+      setNewMed({ name: "", dosage: "", period: "morning", frequency: "Daily", category: "" });
+      setShowAddForm(false);
+      refetch();
+    } catch (err) {
+      console.error("Failed to add medicine:", err);
+    }
   };
 
   const handleScanUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setScannedFile(file);
+      setScanResult([]);
+      setScanError(null);
+      // Show image preview
       const reader = new FileReader();
-      reader.onload = (ev) => {
-        setScannedPreview(ev.target?.result as string);
-      };
+      reader.onload = (ev) => setScannedPreview(ev.target?.result as string);
       reader.readAsDataURL(file);
+      // Immediately start OCR scan
+      runOCR(file);
     }
   };
 
-  const handleScanConfirm = () => {
-    // Simulate AI extracting medicine from prescription
-    const scannedMeds: Medicine[] = [
-      { id: Date.now(), name: "Paracetamol", dosage: "650mg", period: "morning", frequency: "As Needed", status: "pending", category: "Pain Relief" },
-      { id: Date.now() + 1, name: "Cetirizine", dosage: "10mg", period: "evening", frequency: "Daily", status: "pending", category: "Allergy" },
-    ];
-    setMeds((prev) => [...prev, ...scannedMeds]);
+  const runOCR = async (file: File) => {
+    setScanLoading(true);
+    setScanError(null);
+    try {
+      const res = await prescriptionService.scan(file);
+      setScanResult(res.data?.medicines || []);
+    } catch (err: any) {
+      setScanError(err.message || "Failed to scan prescription");
+    } finally {
+      setScanLoading(false);
+    }
+  };
+
+  const timingToTime: Record<string, string> = {
+    morning: "08:00", afternoon: "14:00", evening: "18:00", night: "21:00",
+    morning_evening: "08:00",
+  };
+  const timingToPeriod = (timing: string): "morning" | "afternoon" | "evening" => {
+    if (timing === "morning" || timing === "morning_evening") return "morning";
+    if (timing === "afternoon") return "afternoon";
+    return "evening";
+  };
+
+  const handleScanConfirm = async () => {
+    // Add all detected medicines to the backend
+    for (const med of scanResult) {
+      try {
+        await medicinesService.create({
+          name: med.name,
+          dosage: med.dosage || "As prescribed",
+          scheduled_time: timingToTime[med.timing] || "08:00",
+          category: med.category || "General",
+          frequency: (med.frequency || "daily").toLowerCase().replace(" ", "_"),
+        });
+      } catch (err) {
+        console.error("Failed to add scanned med:", med.name, err);
+      }
+    }
+    setScanResult([]);
     setScannedPreview(null);
+    setScannedFile(null);
     setShowScanModal(false);
+    refetch();
   };
 
   const filtered = meds.filter((m) => {
@@ -416,14 +495,14 @@ const Medicines = () => {
                             </div>
                             <div className="text-center">
                               <p className="text-sm font-semibold text-gray-700">{t("scan.upload")}</p>
-                              <p className="text-xs text-gray-400 mt-1">JPG, PNG, or PDF up to 10MB</p>
+                              <p className="text-xs text-gray-400 mt-1">JPG, PNG, or WebP up to 4MB</p>
                             </div>
                           </div>
 
                           <input
                             ref={fileInputRef}
                             type="file"
-                            accept="image/*,.pdf"
+                            accept="image/jpeg,image/png,image/webp"
                             className="hidden"
                             onChange={handleScanUpload}
                           />
@@ -443,45 +522,69 @@ const Medicines = () => {
                             <img src={scannedPreview} alt="Scanned prescription" className="w-full h-48 object-cover" />
                           </div>
 
-                          {/* Simulated detected medicines */}
+                          {/* OCR Results */}
                           <div>
-                            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">{t("scan.detected")}</p>
-                            <div className="space-y-2">
-                              <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 border border-gray-100">
-                                <div className="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center">
-                                  <Pill className="h-4 w-4 text-green-600" />
-                                </div>
-                                <div>
-                                  <p className="text-sm font-semibold text-gray-900">{t("mock.para")} 650mg</p>
-                                  <p className="text-xs text-gray-400">{t("period.morning")} · As Needed</p>
-                                </div>
-                                <Check className="h-4 w-4 text-green-500 ml-auto" />
+                            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                              {scanLoading ? "🔍 Scanning prescription…" : t("scan.detected")}
+                            </p>
+
+                            {/* Loading spinner */}
+                            {scanLoading && (
+                              <div className="flex items-center justify-center py-6">
+                                <div className="w-8 h-8 border-3 border-primary border-t-transparent rounded-full animate-spin" />
+                                <span className="ml-3 text-sm text-gray-500">AI is reading your prescription…</span>
                               </div>
-                              <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 border border-gray-100">
-                                <div className="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center">
-                                  <Pill className="h-4 w-4 text-green-600" />
-                                </div>
-                                <div>
-                                  <p className="text-sm font-semibold text-gray-900">{t("mock.cetz")} 10mg</p>
-                                  <p className="text-xs text-gray-400">{t("period.evening")} · Daily</p>
-                                </div>
-                                <Check className="h-4 w-4 text-green-500 ml-auto" />
+                            )}
+
+                            {/* Error */}
+                            {scanError && !scanLoading && (
+                              <div className="p-3 rounded-xl bg-red-50 border border-red-100 text-sm text-red-600">
+                                ⚠️ {scanError}
+                                <button onClick={() => scannedFile && runOCR(scannedFile)} className="ml-2 underline font-semibold">Retry</button>
                               </div>
-                            </div>
+                            )}
+
+                            {/* Real detected medicines */}
+                            {!scanLoading && !scanError && scanResult.length > 0 && (
+                              <div className="space-y-2">
+                                {scanResult.map((med, i) => (
+                                  <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 border border-gray-100">
+                                    <div className="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center shrink-0">
+                                      <Pill className="h-4 w-4 text-green-600" />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <p className="text-sm font-semibold text-gray-900 truncate">{med.name} {med.dosage}</p>
+                                      <p className="text-xs text-gray-400 capitalize">
+                                        {med.timing} · {med.frequency?.replace("_", " ")} {med.duration ? `· ${med.duration}` : ""}
+                                      </p>
+                                    </div>
+                                    <Check className="h-4 w-4 text-green-500 shrink-0" />
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+
+                            {/* No medicines found */}
+                            {!scanLoading && !scanError && scanResult.length === 0 && (
+                              <div className="p-4 rounded-xl bg-orange-50 border border-orange-100 text-sm text-orange-700 text-center">
+                                No medicines detected. Try a clearer image.
+                              </div>
+                            )}
                           </div>
 
                           <div className="grid grid-cols-2 gap-2">
                             <button
-                              onClick={() => setScannedPreview(null)}
+                              onClick={() => { setScannedPreview(null); setScannedFile(null); setScanResult([]); setScanError(null); }}
                               className="py-3 rounded-xl bg-gray-50 border border-gray-200 text-gray-700 font-semibold text-sm active:scale-[0.98] transition-all"
                             >
                               {t("scan.rescan")}
                             </button>
                             <button
                               onClick={handleScanConfirm}
-                              className="py-3 rounded-xl bg-primary text-primary-foreground font-semibold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-all"
+                              disabled={scanLoading || scanResult.length === 0}
+                              className="py-3 rounded-xl bg-primary text-primary-foreground font-semibold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-all disabled:opacity-40"
                             >
-                              <Plus className="h-4 w-4" /> {t("scan.addAll")}
+                              <Plus className="h-4 w-4" /> {t("scan.addAll")} ({scanResult.length})
                             </button>
                           </div>
                         </div>

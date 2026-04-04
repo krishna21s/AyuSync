@@ -1,20 +1,21 @@
 import { motion } from "framer-motion";
-import { Sunrise, Sun, Moon, CalendarDays, Pill, Coffee, Dumbbell, Footprints, BedDouble } from "lucide-react";
+import { CalendarDays, Check, Clock } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-const routineItems = [
-  { time: "6:00 AM", tKey: "timeline.wakeup", icon: Sunrise, active: true, period: "morning" },
-  { time: "6:30 AM", tKey: "timeline.morningWalk", icon: Footprints, active: true, period: "morning" },
-  { time: "8:00 AM", tKey: "timeline.breakfast", icon: Pill, active: true, period: "morning" },
-  { time: "12:30 PM", tKey: "timeline.lunch", icon: Coffee, active: false, period: "afternoon" },
-  { time: "2:30 PM", tKey: "timeline.afternoonMeds", icon: Pill, current: true, active: false, period: "afternoon" },
-  { time: "5:00 PM", tKey: "timeline.lightExer", icon: Dumbbell, active: false, period: "afternoon" },
-  { time: "9:00 PM", tKey: "timeline.nightMeds", icon: Pill, active: false, period: "night" },
-  { time: "10:00 PM", tKey: "timeline.sleep", icon: BedDouble, active: false, period: "night" },
-];
+interface TimelineItem {
+  name: string;
+  scheduled_time: string;
+  is_completed: boolean;
+}
 
-export function TimelineCard() {
+interface TimelineCardProps {
+  timeline?: TimelineItem[];
+}
+
+export function TimelineCard({ timeline }: TimelineCardProps) {
   const { t } = useLanguage();
+
+  const items = timeline || [];
 
   return (
     <motion.div
@@ -30,9 +31,13 @@ export function TimelineCard() {
         <h3 className="text-lg font-bold text-gray-900">{t("timeline.title")}</h3>
       </div>
 
+      {items.length === 0 && (
+        <p className="text-sm text-gray-400 text-center py-4">No routine tasks yet. Add tasks in the Routine page!</p>
+      )}
+
       <div className="overflow-x-auto pb-2 -mx-2 px-2">
         <div className="flex gap-2.5 min-w-max">
-          {routineItems.map((item, i) => (
+          {items.map((item, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, scale: 0.9 }}
@@ -40,29 +45,25 @@ export function TimelineCard() {
               transition={{ delay: 0.6 + i * 0.06 }}
               whileHover={{ scale: 1.04, y: -3 }}
               className={`flex flex-col items-center p-4 rounded-2xl min-w-[100px] transition-all cursor-default border ${
-                item.current
-                  ? "bg-primary text-primary-foreground shadow-md shadow-primary/20 border-primary/30"
-                  : item.active
+                item.is_completed
                   ? "bg-gray-50 border-gray-100"
                   : "bg-white border-gray-100"
               }`}
             >
               <div className={`w-9 h-9 rounded-lg flex items-center justify-center mb-2 ${
-                item.current
-                  ? "bg-black/10"
-                  : item.active
-                  ? "bg-white"
-                  : "bg-gray-50"
+                item.is_completed ? "bg-primary/10" : "bg-gray-50"
               }`}>
-                <item.icon className={`h-4 w-4 ${
-                  item.current ? "text-primary-foreground" : item.active ? "text-gray-700" : "text-gray-400"
-                }`} />
+                {item.is_completed ? (
+                  <Check className="h-4 w-4 text-primary" />
+                ) : (
+                  <Clock className="h-4 w-4 text-gray-400" />
+                )}
               </div>
-              <p className={`text-[11px] font-semibold ${item.current ? "" : "text-gray-400"}`}>
-                {item.time}
+              <p className="text-[11px] font-semibold text-gray-400">
+                {item.scheduled_time}
               </p>
-              <p className={`text-xs font-medium mt-1 text-center ${item.current ? "" : "text-gray-700"}`}>
-                {t(item.tKey)}
+              <p className={`text-xs font-medium mt-1 text-center ${item.is_completed ? "text-gray-400 line-through" : "text-gray-700"}`}>
+                {item.name}
               </p>
             </motion.div>
           ))}
