@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { useHealthRisk } from "@/hooks/useHealthRisk";
 import type { HealthRisk, FoodPrecaution, ExercisePrecaution, YogaPrecaution, Checkup } from "@/hooks/useHealthRisk";
+import { NavLink } from "react-router-dom";
 
 // ── icon maps ─────────────────────────────────────────────────────────────────
 
@@ -37,6 +38,8 @@ const urgencyConfig = {
   soon: { label: "Soon", color: "text-amber-600", bg: "bg-amber-50" },
   urgent: { label: "Urgent", color: "text-red-600", bg: "bg-red-50" },
 };
+
+// ── mock organ logic moved to HealthRisk3D ────────────────────────────────────
 
 // ── sub-components ────────────────────────────────────────────────────────────
 
@@ -261,7 +264,8 @@ function EmptyState({ onGenerate, isLoading }: { onGenerate: () => void; isLoadi
 
 const HealthRiskPage = () => {
   const { report, isLoading, isSending, error, whatsappResult, generateReport, shareWhatsApp } = useHealthRisk();
-
+  
+  // Fetch medicines for organ targeting selector
   if (isLoading) return <LoadingState />;
 
   return (
@@ -371,6 +375,32 @@ const HealthRiskPage = () => {
                       ))}
                     </div>
                   </motion.div>
+
+                  {/* ── 3D Organ Impact Visualization Banner ── */}
+                  <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }}>
+                    <div className="bg-[#0a0a0f] rounded-2xl p-6 relative overflow-hidden flex flex-col sm:flex-row items-center justify-between gap-4 border border-gray-800 shadow-xl mb-8">
+                      {/* background decoration */}
+                      <div className="absolute top-0 right-0 w-64 h-64 bg-[#a3d82a]/10 blur-[60px] rounded-full pointer-events-none" />
+                      
+                      <div className="relative z-10 flex items-center gap-4">
+                        <div className="w-14 h-14 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center shrink-0 shadow-inner">
+                          <Eye className="h-7 w-7 text-[#a3d82a]" />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-bold text-white mb-1">3D Drug Visualizer</h3>
+                          <p className="text-xs text-white/50 max-w-sm">
+                            Launch our interactive 3D anatomy dashboard to see exactly how your medicines affect your target organs and where side effects occur.
+                          </p>
+                        </div>
+                      </div>
+                      <NavLink
+                        to="/health-risk/3d"
+                        className="relative z-10 w-full sm:w-auto px-6 py-3.5 bg-[#a3d82a] text-[#0a0a0f] font-bold text-sm rounded-xl hover:bg-[#bbf03d] transition-all shadow-[0_0_20px_rgba(163,216,42,0.3)] flex items-center justify-center gap-2"
+                      >
+                        Launch 3D Tool <ChevronRight className="h-4 w-4" />
+                      </NavLink>
+                    </div>
+                  </motion.section>
 
                   {/* ── Section 1: Predicted Risks ── */}
                   <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.15 }}>
