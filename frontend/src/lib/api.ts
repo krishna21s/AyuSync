@@ -3,7 +3,7 @@
  * Token is read from localStorage on every call.
  */
 
-const BASE_URL = "http://localhost:8000/api";
+const BASE_URL = "https://ayusync.onrender.com/api";
 
 function getToken(): string | null {
   return localStorage.getItem("healthai_token");
