@@ -404,11 +404,6 @@ AyuSync integrates **Groq API** using the `llama-3.1-8b-instant` model for ultra
 
 ---
 
-## 🛡️ License
-
-This project is licensed under the **MIT License** — feel free to use, modify, and distribute.
-
----
 
 <div align="center">
 
