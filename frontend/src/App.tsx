@@ -15,6 +15,7 @@ import Settings from "./pages/Settings.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import AuthPage from "./pages/AuthPage.tsx";
 import HealthRiskPage from "./pages/HealthRisk.tsx";
+import HealthRisk3DPage from "./pages/HealthRisk3D.tsx";
 
 const queryClient = new QueryClient();
 
@@ -52,6 +53,7 @@ const App = () => (
               <Route path="/meals" element={<ProtectedRoute><Meals /></ProtectedRoute>} />
               <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
               <Route path="/health-risk" element={<ProtectedRoute><HealthRiskPage /></ProtectedRoute>} />
+              <Route path="/health-risk/3d" element={<ProtectedRoute><HealthRisk3DPage /></ProtectedRoute>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

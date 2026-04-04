@@ -123,9 +123,7 @@ export default function AuthPage() {
       <div className="w-full max-w-md">
         {/* Brand */}
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary mb-4 shadow-lg shadow-primary/30">
-            <span className="text-2xl font-black text-primary-foreground">A+</span>
-          </div>
+          <img src="/logo.png" alt="AyuSync Logo" className="h-20 w-auto mx-auto mb-2" />
           <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">AyuSync</h1>
           <p className="text-gray-500 mt-1 text-sm">Your personal health & medicine companion</p>
         </motion.div>

@@ -11,7 +11,7 @@ from app.auth import get_current_user
 from app.database import get_db
 from app.models import Medicine, User
 from app.schemas import ApiResponse
-from app.services.health_risk import generate_health_risk_report
+from app.services.health_risk import generate_health_risk_report, analyze_organ_impact
 from app.services.whatsapp import send_message
 
 logger = logging.getLogger("healthai.health_risk_router")
@@ -127,3 +127,28 @@ async def share_via_whatsapp(
             "message": f"Report sent to: {', '.join(sent_to) if sent_to else 'none (WhatsApp not configured)'}",
         }
     )
+
+
+@router.post("/organ-impact", response_model=ApiResponse)
+async def get_organ_impact(
+    body: dict,
+    current_user: User = Depends(get_current_user),
+):
+    """
+    Analyse a single medicine using AI and return which organs it targets vs puts at risk.
+    Used by the 3D Drug Visualizer to intelligently highlight organ meshes.
+
+    Request body: { name, dosage, category, frequency }
+    Response data: { targetOrgans, riskOrgans, recommendedSystem, confidence, reasoning, mechanismSummary }
+    """
+    name = body.get("name", "").strip()
+    if not name:
+        raise HTTPException(status_code=422, detail="Medicine 'name' is required.")
+
+    result = await analyze_organ_impact(
+        medicine_name=name,
+        dosage=body.get("dosage", ""),
+        category=body.get("category", ""),
+        frequency=body.get("frequency", ""),
+    )
+    return ApiResponse(data=result)

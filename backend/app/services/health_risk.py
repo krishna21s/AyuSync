@@ -21,6 +21,15 @@ logger = logging.getLogger("healthai.health_risk")
 
 MODEL = "llama-3.1-8b-instant"
 
+# Valid organ names that map to 3D mesh keywords in the frontend
+VALID_ORGANS = [
+    "Lungs", "Liver", "Kidneys", "Heart", "Brain",
+    "Nerves", "Stomach", "Bone", "Eye", "Blood"
+]
+
+# Valid 3D system identifiers matching the frontend anatomySystems
+VALID_SYSTEMS = ["skeleton", "vascular_system", "visceral_system", "nervous_system"]
+
 
 # ── helpers ──────────────────────────────────────────────────────────────────
 
@@ -218,4 +227,79 @@ async def generate_health_risk_report(user_name: str, medicines: list[dict]) -> 
         "risks": risks,
         "precautions": precautions,
         "checkups": checkups,
+    }
+
+
+# ── Module 4: Single Medicine Organ Impact Analysis ───────────────────────────
+
+async def analyze_organ_impact(medicine_name: str, dosage: str, category: str, frequency: str) -> dict:
+    """
+    Analyse a single medicine and return which organs it targets vs puts at risk,
+    plus which 3D anatomical system best shows the impact.
+
+    Returns:
+    {
+        targetOrgans: list[str],   # organs from VALID_ORGANS that are primary targets
+        riskOrgans: list[str],     # organs from VALID_ORGANS at risk of side effects
+        recommendedSystem: str,    # one of VALID_SYSTEMS to auto-select in the 3D viewer
+        confidence: str,           # 'high' | 'medium' | 'low'
+        reasoning: str,            # 1-2 sentence plain-English explanation
+        mechanismSummary: str,     # how the drug works (1-2 sentences)
+    }
+    """
+    valid_organs_str = ", ".join(VALID_ORGANS)
+    valid_systems_str = ", ".join(VALID_SYSTEMS)
+
+    system_prompt = (
+        f"You are a clinical pharmacologist. Analyse a medicine and return ONLY valid JSON. "
+        f"The JSON must have exactly these keys:\n"
+        f"  targetOrgans: array of strings — primary organs/systems this drug acts on. "
+        f"Choose ONLY from: {valid_organs_str}. 1-3 items.\n"
+        f"  riskOrgans: array of strings — organs most at risk of side effects from this drug. "
+        f"Choose ONLY from: {valid_organs_str}. 1-3 items, different from targetOrgans where possible.\n"
+        f"  recommendedSystem: string — best 3D anatomical system to visualise this medicine. "
+        f"Choose exactly one from: {valid_systems_str}. "
+        f"Use 'vascular_system' for heart/blood, 'visceral_system' for liver/kidney/stomach/lung, "
+        f"'nervous_system' for brain/nerve, 'skeleton' for bone/joint.\n"
+        f"  confidence: string — 'high', 'medium', or 'low' based on how well-understood this medicine is.\n"
+        f"  reasoning: string — 1-2 sentence plain-language explanation of why these organs are affected.\n"
+        f"  mechanismSummary: string — brief (1-2 sentences) explanation of how this drug works in the body.\n"
+        f"Return ONLY the JSON object, no markdown, no extra text."
+    )
+
+    user_prompt = (
+        f"Medicine: {medicine_name}\n"
+        f"Dosage: {dosage or 'unspecified'}\n"
+        f"Category: {category or 'unspecified'}\n"
+        f"Frequency: {frequency or 'unspecified'}\n"
+        f"Analyse the pharmacological target organs and primary side effect organs for this medicine."
+    )
+
+    data = await _call_groq(system_prompt, user_prompt)
+
+    # Validate and filter to only allowed organ names
+    def filter_organs(lst: list) -> list[str]:
+        if not isinstance(lst, list):
+            return []
+        return [o for o in lst if o in VALID_ORGANS][:3]
+
+    target = filter_organs(data.get("targetOrgans", []))
+    risk = filter_organs(data.get("riskOrgans", []))
+    system = data.get("recommendedSystem", "visceral_system")
+    if system not in VALID_SYSTEMS:
+        system = "visceral_system"
+
+    # Ensure we always have at least a fallback
+    if not target:
+        target = ["Blood"]
+    if not risk:
+        risk = ["Liver"]
+
+    return {
+        "targetOrgans": target,
+        "riskOrgans": risk,
+        "recommendedSystem": system,
+        "confidence": data.get("confidence", "medium"),
+        "reasoning": data.get("reasoning", ""),
+        "mechanismSummary": data.get("mechanismSummary", ""),
     }
