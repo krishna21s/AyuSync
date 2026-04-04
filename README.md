@@ -118,13 +118,6 @@ npm run dev
 ```
 
 The application should now be accessible at `http://localhost:8080/` (or whichever port Vite successfully binds to).
-
----
-
-## 🛡️ License
-
-This project is licensed under the MIT License. See the `LICENSE` file for more details.
-
 ---
 <div align="center">
   <p>Made with ❤️ to empower smarter, digital-first healthcare.</p>
